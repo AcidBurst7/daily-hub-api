@@ -50,6 +50,17 @@ def get_one(id: int) -> User:
         return row_to_model(row)
     else:
         raise Missing(msg=f"Такого пользователя не существует")
+    
+def get_one_by_username(username: str) -> User:
+    query = "SELECT * FROM users WHERE username = ?"
+    init.curs.execute(query, (username, ))
+    row = init.curs.fetchone()
+    init.conn.commit()
+
+    if row:
+        return row_to_model(row)
+    else:
+        raise Missing(msg=f"Такого пользователя не существует")
 
 def get_all() -> list[User]:
     query = "SELECT * FROM users"
