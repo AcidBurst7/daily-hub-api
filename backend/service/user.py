@@ -4,7 +4,7 @@ from jose import jwt
 from model.user import User
 
 
-if os.getenv("DAILYHUN_USER_UNIT_TEST"):
+if os.getenv("DAILYHUB_USER_UNIT_TEST"):
     from fake import user as user_data
 else:
     from data import user as user_data
