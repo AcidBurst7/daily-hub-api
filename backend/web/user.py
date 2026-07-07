@@ -1,10 +1,11 @@
 import os
 from datetime import timedelta
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import (
     OAuth2PasswordBearer,
     OAuth2PasswordRequestForm
 )
+from errors import Missing
 from model.user import User
 
 
@@ -53,4 +54,40 @@ async def create_access_token(
         "token_type": "Bearer"
     }
 
-# @app.get()
+@router.get("/token")
+def get_access_token(token: str = Depends(oauth2_dep)) -> dict:
+    """Возврат текущего токена доступа"""
+    return {"token": token}
+
+@router.get("/")
+def get_all() -> list[User]:
+    return service.get_all()
+
+@router.get("/{name}")
+def get_one(username: str) -> User | None:
+    try:
+        return service.get_one(username)
+    except Missing as exc:
+        raise HTTPException(status_code=404, detail=exc.msg)
+
+@router.post("/", status_code=201)
+def create(user: User) -> User | None:
+    try:
+        return service.create(user)
+    except Missing as exc:
+        raise HTTPException(status_code=409, detail=exc.msg)
+    
+@router.patch("/")
+def modify(user: User) -> User | None:
+    try:
+        return service.modify(user)
+    except Missing as exc:
+        raise HTTPException(status_code=404, detail=exc.msg)
+    
+    
+@router.delete("/")
+def delete(id: int) -> User | None:
+    try:
+        return service.delete(id)
+    except Missing as exc:
+        raise HTTPException(status_code=404, detail=exc.msg)
